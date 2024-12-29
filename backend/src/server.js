@@ -5,14 +5,26 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://multiplayer-pixel-game.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Frontend URL'iniz
+    origin: [
+      "http://localhost:3000",
+      "https://multiplayer-pixel-game.vercel.app",
+    ],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -28,14 +40,14 @@ io.on("connection", (socket) => {
   // Mevcut grid durumunu yeni bağlanan kullanıcıya gönder
   socket.emit("init", { grid: pixelGrid });
 
-  socket.on("pixelUpdate", (data) => {
+  socket.on("pixel:place", (data) => {
     try {
       const { x, y, color } = data;
       if (x >= 0 && x < 100 && y >= 0 && y < 100) {
         pixelGrid[y][x] = color;
 
         // Tüm bağlı kullanıcılara güncellemeyi gönder
-        io.emit("pixelUpdate", { x, y, color });
+        io.emit("pixel:update", { x, y, color });
       }
     } catch (error) {
       console.error("Mesaj işleme hatası:", error);
