@@ -9,7 +9,7 @@ interface CanvasProps {
 }
 
 const CANVAS_SIZE = 500;
-const GRID_SIZE = 25;
+const GRID_SIZE = 100;
 const PIXEL_SIZE = CANVAS_SIZE / GRID_SIZE;
 
 const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
