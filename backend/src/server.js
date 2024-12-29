@@ -33,6 +33,11 @@ const pixelGrid = Array(100)
   .fill()
   .map(() => Array(100).fill("#FFFFFF"));
 
+// Canvas durumunu periyodik olarak gönder
+setInterval(() => {
+  io.emit("canvas:update", { grid: pixelGrid });
+}, 4000);
+
 // Socket.IO bağlantı yönetimi
 io.on("connection", (socket) => {
   console.log("Yeni kullanıcı bağlandı");

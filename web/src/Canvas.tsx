@@ -92,6 +92,26 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
     const newSocket = io(BACKEND_URL);
     setSocket(newSocket);
 
+    // Başlangıç canvas durumunu al
+    newSocket.on("init", ({ grid }) => {
+      if (!grid) return;
+      grid.forEach((row: string[], y: number) => {
+        row.forEach((color: string, x: number) => {
+          updatePixel(x, y, color);
+        });
+      });
+    });
+
+    // Periyodik canvas güncellemelerini al
+    newSocket.on("canvas:update", ({ grid }) => {
+      if (!grid) return;
+      grid.forEach((row: string[], y: number) => {
+        row.forEach((color: string, x: number) => {
+          updatePixel(x, y, color);
+        });
+      });
+    });
+
     newSocket.on("pixel:update", ({ x, y, color }) => {
       updatePixel(x, y, color);
     });
