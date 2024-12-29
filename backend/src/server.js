@@ -29,9 +29,9 @@ const io = new Server(server, {
 });
 
 // Piksel verilerini tutacak grid
-const pixelGrid = Array(100)
+const pixelGrid = Array(50)
   .fill()
-  .map(() => Array(100).fill("#FFFFFF"));
+  .map(() => Array(50).fill("#FFFFFF"));
 
 // Canvas durumunu periyodik olarak gönder
 setInterval(() => {
@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
   socket.on("pixel:place", (data) => {
     try {
       const { x, y, color } = data;
-      if (x >= 0 && x < 100 && y >= 0 && y < 100) {
+      if (x >= 0 && x < 50 && y >= 0 && y < 50) {
         pixelGrid[y][x] = color;
 
         // Tüm bağlı kullanıcılara güncellemeyi gönder
