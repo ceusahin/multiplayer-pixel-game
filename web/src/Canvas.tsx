@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+
 interface CanvasProps {
   selectedColor: string;
   onPixelPlaced: () => void;
@@ -72,7 +74,7 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
   };
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3001");
+    const newSocket = io(BACKEND_URL);
     setSocket(newSocket);
 
     newSocket.on("pixel:update", ({ x, y, color }) => {
