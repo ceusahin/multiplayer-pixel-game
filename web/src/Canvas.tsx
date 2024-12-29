@@ -14,12 +14,29 @@ const PIXEL_SIZE = CANVAS_SIZE / GRID_SIZE;
 
 const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [socket, setSocket] = useState<any>(null);
   const [canvasState, setCanvasState] = useState<string[][]>(
     Array(GRID_SIZE)
       .fill(null)
       .map(() => Array(GRID_SIZE).fill("#FFFFFF"))
   );
+  const [scale, setScale] = useState(1);
+
+  // Mobil cihazlarda canvas'ı ekrana sığdır
+  useEffect(() => {
+    const updateCanvasScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const newScale = Math.min(1, containerWidth / CANVAS_SIZE);
+        setScale(newScale);
+      }
+    };
+
+    updateCanvasScale();
+    window.addEventListener("resize", updateCanvasScale);
+    return () => window.removeEventListener("resize", updateCanvasScale);
+  }, []);
 
   const logCanvasState = () => {
     console.log("Canvas Durumu:");
@@ -62,14 +79,12 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
     ctx.fillStyle = color;
     ctx.fillRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
 
-    // Canvas state'ini güncelle
     setCanvasState((prev) => {
       const newState = [...prev];
       newState[y][x] = color;
       return newState;
     });
 
-    // Yeni durumu konsola yazdır
     logCanvasState();
   };
 
@@ -117,8 +132,25 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((event.clientX - rect.left) / PIXEL_SIZE);
-    const y = Math.floor((event.clientY - rect.top) / PIXEL_SIZE);
+    const x = Math.floor((event.clientX - rect.left) / (PIXEL_SIZE * scale));
+    const y = Math.floor((event.clientY - rect.top) / (PIXEL_SIZE * scale));
+
+    if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
+
+    socket?.emit("pixel:place", { x, y, color: selectedColor });
+    updatePixel(x, y, selectedColor);
+    onPixelPlaced();
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = event.touches[0];
+    const x = Math.floor((touch.clientX - rect.left) / (PIXEL_SIZE * scale));
+    const y = Math.floor((touch.clientY - rect.top) / (PIXEL_SIZE * scale));
 
     if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return;
 
@@ -128,15 +160,23 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
   };
 
   return (
-    <div style={{ overflow: "auto" }}>
+    <div
+      ref={containerRef}
+      className="w-full flex justify-center items-center touch-none"
+      style={{ maxWidth: "100vw" }}
+    >
       <canvas
         ref={canvasRef}
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
         style={{
           cursor: "pointer",
+          transform: `scale(${scale})`,
+          transformOrigin: "center",
+          touchAction: "none",
         }}
         onClick={handleCanvasClick}
+        onTouchStart={handleTouchStart}
       />
     </div>
   );

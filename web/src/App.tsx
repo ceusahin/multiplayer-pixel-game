@@ -44,30 +44,34 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-100 p-2 sm:p-4">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-4">
+        <h1 className="text-xl sm:text-3xl font-bold text-center mb-2 sm:mb-4">
           Piksel Sanat Oyunu
         </h1>
 
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex gap-8 text-xl font-semibold text-gray-700">
+        <div className="flex flex-col items-center gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-base sm:text-xl font-semibold text-gray-700 text-center">
             <div>Yerleştirilen Piksel: {pixelCount}</div>
             <div>Geçen Süre: {formatTime(elapsedTime)}</div>
           </div>
 
-          <div className="border-4 border-gray-300 rounded-lg overflow-hidden">
-            <Canvas
-              selectedColor={selectedColor}
-              onPixelPlaced={handlePixelPlaced}
-            />
+          <div className="w-full sm:w-auto border-2 sm:border-4 border-gray-300 rounded-lg overflow-hidden">
+            <div className="max-w-full overflow-x-auto">
+              <Canvas
+                selectedColor={selectedColor}
+                onPixelPlaced={handlePixelPlaced}
+              />
+            </div>
           </div>
 
-          <ColorPalette
-            colors={COLORS}
-            selectedColor={selectedColor}
-            onColorSelect={setSelectedColor}
-          />
+          <div className="w-full sm:w-auto">
+            <ColorPalette
+              colors={COLORS}
+              selectedColor={selectedColor}
+              onColorSelect={setSelectedColor}
+            />
+          </div>
         </div>
       </div>
     </div>
