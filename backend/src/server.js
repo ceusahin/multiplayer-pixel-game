@@ -29,14 +29,14 @@ const io = new Server(server, {
 });
 
 // Piksel verilerini tutacak grid
-const pixelGrid = Array(50)
+let pixelGrid = Array(50)
   .fill()
   .map(() => Array(50).fill("#FFFFFF"));
 
 // Canvas durumunu periyodik olarak gönder
-setInterval(() => {
+const sendCanvasUpdate = () => {
   io.emit("canvas:update", { grid: pixelGrid });
-}, 4000);
+};
 
 // Socket.IO bağlantı yönetimi
 io.on("connection", (socket) => {
@@ -49,6 +49,7 @@ io.on("connection", (socket) => {
     try {
       const { x, y, color } = data;
       if (x >= 0 && x < 50 && y >= 0 && y < 50) {
+        // Grid'i güncelle
         pixelGrid[y][x] = color;
 
         // Tüm bağlı kullanıcılara güncellemeyi gönder
@@ -63,6 +64,9 @@ io.on("connection", (socket) => {
     console.log("Kullanıcı bağlantısı kesildi");
   });
 });
+
+// Her 4 saniyede bir canvas durumunu gönder
+setInterval(sendCanvasUpdate, 4000);
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

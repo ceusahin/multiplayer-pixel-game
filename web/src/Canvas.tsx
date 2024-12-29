@@ -119,15 +119,24 @@ const Canvas: React.FC<CanvasProps> = ({ selectedColor, onPixelPlaced }) => {
 
     newSocket.on("init", ({ grid }) => {
       if (!grid) return;
+      console.log("İlk canvas durumu alındı");
       setCanvasState(grid);
     });
 
     newSocket.on("canvas:update", ({ grid }) => {
       if (!grid) return;
-      setCanvasState(grid);
+      console.log("Canvas güncellendi");
+      // Sadece değişen pikselleri güncelle
+      setCanvasState((prevState) => {
+        const newState = prevState.map((row, y) =>
+          row.map((pixel, x) => (grid[y][x] !== "#FFFFFF" ? grid[y][x] : pixel))
+        );
+        return newState;
+      });
     });
 
     newSocket.on("pixel:update", ({ x, y, color }) => {
+      console.log(`Piksel güncellendi: (${x}, ${y}) -> ${color}`);
       updatePixel(x, y, color);
     });
 
